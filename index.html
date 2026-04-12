@@ -647,8 +647,12 @@
     <p>사전 등록하고 정식 출시 시<br>우선 초대장을 받으세요.</p>
     <a href="https://github.com/JAEHYUNLEE-Lab/moat-landing/releases/download/v1.0.0-beta/app-release.apk" class="btn-primary" id="cta-download" style="display:inline-block;margin-bottom:24px;">Android APK 다운로드 (Beta)</a>
     <p style="color:var(--text3);font-size:13px;margin-bottom:24px;">iOS 출시 알림을 받고 싶으시면 이메일을 남겨주세요.</p>
-    <form class="email-form" id="email-form">
-      <input type="email" placeholder="your@email.com" required>
+    <form class="email-form" id="email-form" action="https://formsubmit.co/jnj05270@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="Moat 사전 등록 신청">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://jaehyunlee-lab.github.io/moat-landing/">
+      <input type="hidden" name="_template" value="table">
+      <input type="email" name="email" placeholder="your@email.com" required>
       <button type="submit">사전 등록</button>
     </form>
     <p class="form-msg" id="form-msg">등록 완료! 출시 시 가장 먼저 알려드릴게요.</p>
@@ -682,18 +686,14 @@
     });
   });
 
-  // Email form
+  // Email form - increment counter in localStorage before FormSubmit.co POST
   document.getElementById('email-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const msg = document.getElementById('form-msg');
-    msg.style.display = 'block';
-    // Increment counter
+    // Increment counter in localStorage (form will navigate to FormSubmit then redirect back)
     const counter = document.getElementById('counter');
     const current = parseInt(counter.textContent) || 0;
     counter.textContent = current + 1;
     localStorage.setItem('moat_registrations', current + 1);
-    this.reset();
-    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+    // Allow form to submit normally to FormSubmit.co (no e.preventDefault())
   });
 
   // Load counter from localStorage
