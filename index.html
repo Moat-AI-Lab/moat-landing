@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moat - 내 포트폴리오, 지금 잘하고 있는 걸까?</title>
+  <meta name="description" content="데이터 기반 포트폴리오 분석 앱. AI 진단, 백테스트, 리스크 분석까지 하나의 앱에서.">
+  <meta property="og:title" content="Moat - 내 포트폴리오, 지금 잘하고 있는 걸까?">
+  <meta property="og:description" content="데이터 기반 포트폴리오 분석 앱. AI 진단, 백테스트, 리스크 분석까지 하나의 앱에서.">
+  <meta property="og:type" content="website">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --accent: #FF4757;
+      --accent-dim: rgba(255,71,87,0.1);
+      --accent-glow: rgba(255,71,87,0.3);
+      --green: #2ED573;
+      --blue: #5B8DEF;
+      --yellow: #FFA502;
+      --bg: #0A0A0A;
+      --bg2: #111111;
+      --bg3: #1A1A1A;
+      --bg4: #222222;
+      --text: #FFFFFF;
+      --text2: #BBBBBB;
+      --text3: #777777;
+      --border: rgba(255,255,255,0.06);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; width: 100%; padding: 18px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 100; backdrop-filter: blur(20px);
+      background: rgba(10,10,10,0.85);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: 3px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { color: var(--text3); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 10px 24px; background: var(--accent); color: #000 !important;
+      border-radius: 8px; font-weight: 700 !important; font-size: 13px !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 120px 24px 80px; position: relative;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -300px; right: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(255,71,87,0.1) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 700px; width: 100%; text-align: center;
+    }
+    .hero-text { }
+    .hero-badge {
+      display: inline-block; padding: 6px 14px;
+      border: 1px solid rgba(255,71,87,0.3); border-radius: 20px;
+      font-size: 12px; color: var(--accent); letter-spacing: 1px; margin-bottom: 28px;
+    }
+    .hero-question {
+      font-size: clamp(32px, 5vw, 52px); font-weight: 900;
+      line-height: 1.25; margin-bottom: 20px;
+    }
+    .hero-question .highlight { color: var(--accent); }
+    .hero-sub {
+      font-size: 17px; color: var(--text3); line-height: 1.8; margin-bottom: 36px; max-width: 480px;
+      margin-left: auto; margin-right: auto;
+    }
+    .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .hero-disclaimer {
+      margin-top: 20px; font-size: 11px; color: var(--text3); opacity: 0.7;
+      max-width: 400px; line-height: 1.5; margin-left: auto; margin-right: auto;
+    }
+    .btn-primary {
+      padding: 15px 36px; background: var(--accent); color: #000;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 800;
+      cursor: pointer; transition: all 0.3s; letter-spacing: 0.5px; display: inline-block;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(255,71,87,0.4); }
+    .btn-secondary {
+      padding: 15px 36px; background: transparent; color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
+      font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-block;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); }
+
+    /* Hero mockup */
+    .hero-mockup { flex: 0 0 320px; position: relative; }
+    .phone-frame {
+      width: 280px; height: 570px; background: #000;
+      border-radius: 44px; border: 3px solid #2A2A2A;
+      padding: 0; position: relative; overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 40px 80px rgba(0,0,0,0.6),
+        0 0 80px rgba(255,71,87,0.06),
+        inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .phone-inner {
+      margin: 12px; height: calc(100% - 24px);
+      background: var(--bg); border-radius: 34px;
+      overflow: hidden; position: relative;
+    }
+    .phone-dynamic-island {
+      width: 90px; height: 26px; background: #000;
+      border-radius: 20px; margin: 10px auto 0;
+      position: relative; z-index: 3;
+    }
+    .phone-status-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 4px 24px 0; font-size: 10px; font-weight: 600; color: var(--text2);
+    }
+    .phone-status-bar .time { font-weight: 700; }
+    .phone-status-icons { display: flex; gap: 4px; align-items: center; }
+    .phone-content { padding: 12px 16px 16px; }
+    .mock-header { margin-bottom: 14px; }
+    .mock-header .logo { font-size: 20px; font-weight: 900; color: var(--accent); letter-spacing: 2px; }
+    .mock-total {
+      background: linear-gradient(135deg, var(--bg3), rgba(26,26,26,0.8));
+      border-radius: 14px; padding: 16px; margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .mock-total .mt-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+    .mock-total .mt-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .mock-total .mt-change {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 6px; margin-top: 4px;
+    }
+    .mock-holdings {
+      background: var(--bg3); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .mock-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .mock-row:last-child { border-bottom: none; }
+    .mock-row-left { display: flex; align-items: center; gap: 8px; }
+    .mock-ticker-icon {
+      width: 26px; height: 26px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800; color: #000;
+    }
+    .mock-ticker-info .ticker { font-size: 12px; font-weight: 700; }
+    .mock-ticker-info .name { font-size: 9px; color: var(--text3); }
+    .mock-row-right { text-align: right; }
+    .mock-row-right .weight { font-size: 11px; color: var(--text2); font-weight: 600; }
+    .mock-row-right .change { font-size: 10px; font-weight: 700; }
+    .up { color: var(--green); }
+    .down { color: var(--accent); }
+    .mock-chart-card {
+      background: var(--bg3); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .mock-chart-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+    }
+    .mock-chart-title { font-size: 10px; color: var(--text3); font-weight: 600; }
+    .mock-chart-period {
+      display: flex; gap: 4px;
+    }
+    .mock-period-btn {
+      font-size: 8px; padding: 2px 6px; border-radius: 4px;
+      color: var(--text3); background: transparent;
+    }
+    .mock-period-btn.active {
+      background: var(--accent-dim); color: var(--accent); font-weight: 700;
+    }
+    .mock-chart-card svg { width: 100%; height: 50px; }
+    .mock-ai-card {
+      background: linear-gradient(135deg, rgba(255,71,87,0.08), rgba(255,71,87,0.02));
+      border: 1px solid rgba(255,71,87,0.12); border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .mock-ai-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .mock-ai-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 0.4; } 50% { opacity: 1; }
+    }
+    .mock-ai-label { font-size: 10px; color: var(--accent); font-weight: 700; }
+    .mock-ai-score { display: flex; align-items: baseline; gap: 6px; }
+    .mock-ai-score .score-num { font-size: 32px; font-weight: 900; color: var(--accent); }
+    .mock-ai-score .score-max { font-size: 12px; color: var(--text3); }
+    .mock-ai-score .score-grade {
+      font-size: 10px; font-weight: 700; color: var(--green);
+      padding: 2px 8px; background: rgba(46,213,115,0.1); border-radius: 4px;
+    }
+    .phone-home-indicator {
+      width: 120px; height: 4px; background: rgba(255,255,255,0.15);
+      border-radius: 2px; margin: 8px auto 4px;
+    }
+
+    /* ── Pain Points ── */
+    .pain {
+      padding: 100px 24px; background: var(--bg2);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      text-align: center; font-size: 13px; color: var(--accent);
+      letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .section-heading {
+      text-align: center; font-size: clamp(26px, 4vw, 38px);
+      font-weight: 800; margin-bottom: 16px;
+    }
+    .section-sub {
+      text-align: center; font-size: 16px; color: var(--text3); margin-bottom: 56px;
+    }
+    .pain-grid {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;
+    }
+    .pain-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px 24px; position: relative;
+      border-left: 3px solid var(--accent);
+    }
+    .pain-card .quote {
+      font-size: 17px; font-weight: 600; line-height: 1.6; margin-bottom: 12px;
+    }
+    .pain-card .quote::before { content: '"'; color: var(--accent); font-size: 24px; font-weight: 900; }
+    .pain-card .quote::after { content: '"'; color: var(--accent); font-size: 24px; font-weight: 900; }
+    .pain-card .source { font-size: 13px; color: var(--text3); }
+
+    /* ── Solution / Features ── */
+    .solution { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .solution-card {
+      display: flex; align-items: center; gap: 60px;
+      margin-bottom: 80px;
+    }
+    .solution-card:nth-child(even) { flex-direction: row-reverse; }
+    .solution-text { flex: 1; }
+    .solution-num {
+      font-size: 13px; color: var(--accent); font-weight: 800;
+      letter-spacing: 3px; margin-bottom: 12px;
+    }
+    .coming-soon-badge {
+      display: inline-block; padding: 2px 10px; margin-left: 8px;
+      background: rgba(255,165,2,0.1); border: 1px solid rgba(255,165,2,0.3);
+      border-radius: 6px; font-size: 10px; color: var(--yellow);
+      letter-spacing: 1px; font-weight: 700; vertical-align: middle;
+    }
+    .solution-text h3 { font-size: 28px; font-weight: 800; margin-bottom: 14px; }
+    .solution-text p { font-size: 15px; color: var(--text3); line-height: 1.8; margin-bottom: 16px; }
+    .solution-visual { flex: 0 0 400px; }
+    .ai-bubble {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; font-size: 14px; line-height: 1.8;
+    }
+    .ai-bubble .ai-tag {
+      display: inline-block; padding: 3px 10px; background: var(--accent-dim);
+      border-radius: 6px; font-size: 11px; color: var(--accent);
+      font-weight: 700; margin-bottom: 12px;
+    }
+    .ai-bubble .suggestion {
+      background: rgba(46,213,115,0.08); border-left: 3px solid var(--green);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 12px;
+      font-size: 13px; color: var(--text2);
+    }
+    .ai-bubble .metric {
+      display: inline-block; padding: 2px 8px; background: var(--bg3);
+      border-radius: 4px; font-family: monospace; font-size: 13px;
+      color: var(--accent); font-weight: 600;
+    }
+    .backtest-visual {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; overflow: hidden;
+    }
+    .backtest-visual .bv-title { font-size: 13px; color: var(--text3); margin-bottom: 4px; }
+    .backtest-visual .bv-value { font-size: 28px; font-weight: 800; color: var(--green); margin-bottom: 16px; }
+    .backtest-visual svg { width: 100%; height: 100px; }
+    .dashboard-visual {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; overflow: hidden;
+    }
+    .dash-row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .dash-item {
+      flex: 1; background: var(--bg3); border-radius: 10px; padding: 14px;
+    }
+    .dash-item .dl { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+    .dash-item .dv { font-size: 18px; font-weight: 800; }
+    .dash-pie {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: conic-gradient(var(--accent) 0% 35%, var(--blue) 35% 55%, var(--green) 55% 75%, var(--yellow) 75% 90%, var(--text3) 90% 100%);
+      margin: 16px auto; position: relative;
+    }
+    .dash-pie::after {
+      content: ''; position: absolute; top: 25px; left: 25px;
+      width: 70px; height: 70px; background: var(--bg2); border-radius: 50%;
+    }
+
+    /* ── Comparison Table ── */
+    .compare { padding: 100px 24px; background: var(--bg2); }
+    .compare-table {
+      max-width: 800px; margin: 0 auto;
+      border-collapse: collapse; width: 100%;
+    }
+    .compare-table th, .compare-table td {
+      padding: 16px 20px; text-align: center; font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th { color: var(--text3); font-weight: 600; font-size: 13px; }
+    .compare-table th:first-child, .compare-table td:first-child { text-align: left; }
+    .compare-table th.moat-col { color: var(--accent); font-weight: 800; }
+    .compare-table td.feature-name { font-weight: 600; }
+    .check { color: var(--green); font-size: 18px; }
+    .cross { color: var(--text3); font-size: 18px; opacity: 0.4; }
+    .moat-cell { background: rgba(255,71,87,0.03); }
+
+    /* ── How it works ── */
+    .how { padding: 100px 24px; }
+    .how-steps {
+      max-width: 800px; margin: 0 auto;
+      display: flex; gap: 32px; justify-content: center;
+    }
+    .how-step {
+      flex: 1; text-align: center; position: relative;
+    }
+    .how-step::after {
+      content: ''; position: absolute; top: 32px; right: -16px;
+      width: 32px; height: 2px; background: rgba(255,255,255,0.1);
+    }
+    .how-step:last-child::after { display: none; }
+    .step-circle {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--accent-dim); border: 2px solid rgba(255,71,87,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 24px; font-weight: 900; color: var(--accent);
+    }
+    .how-step h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .how-step p { font-size: 14px; color: var(--text3); line-height: 1.6; }
+
+    /* ── Social Proof ── */
+    .social { padding: 80px 24px; background: var(--bg2); border-top: 1px solid var(--border); }
+    .social-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+    .counter-box {
+      display: inline-flex; align-items: baseline; gap: 8px;
+      padding: 20px 40px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 16px; margin-bottom: 32px;
+    }
+    .counter-num { font-size: 48px; font-weight: 900; color: var(--accent); }
+    .counter-label { font-size: 16px; color: var(--text3); }
+    .tech-badges {
+      display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 24px;
+    }
+    .tech-badge {
+      padding: 8px 16px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; font-size: 12px; color: var(--text3); font-weight: 600;
+    }
+
+    /* ── FAQ ── */
+    .faq { padding: 100px 24px; }
+    .faq-list { max-width: 700px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--border); padding: 24px 0;
+    }
+    .faq-q {
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q::after { content: '+'; font-size: 22px; color: var(--text3); transition: transform 0.3s; }
+    .faq-item.open .faq-q::after { content: '-'; }
+    .faq-a {
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease;
+      font-size: 15px; color: var(--text3); line-height: 1.7;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding-top: 14px; }
+
+    /* ── Final CTA ── */
+    .final-cta { padding: 100px 24px; text-align: center; background: var(--bg2); }
+    .cta-box {
+      max-width: 600px; margin: 0 auto;
+      background: linear-gradient(135deg, rgba(255,71,87,0.08) 0%, rgba(255,71,87,0.02) 100%);
+      border: 1px solid rgba(255,71,87,0.15); border-radius: 24px; padding: 60px 40px;
+    }
+    .cta-box h2 { font-size: 30px; font-weight: 800; margin-bottom: 12px; }
+    .cta-box > p { color: var(--text3); margin-bottom: 32px; font-size: 16px; line-height: 1.7; }
+    .email-form { display: flex; gap: 12px; max-width: 440px; margin: 0 auto; }
+    .email-form input {
+      flex: 1; padding: 14px 20px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1); background: var(--bg);
+      color: var(--text); font-size: 15px; outline: none; transition: border-color 0.3s;
+    }
+    .email-form input:focus { border-color: var(--accent); }
+    .email-form input::placeholder { color: var(--text3); }
+    .email-form button {
+      padding: 14px 28px; background: var(--accent); color: #000; border: none;
+      border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer;
+      white-space: nowrap; transition: all 0.3s;
+    }
+    .email-form button:hover { box-shadow: 0 8px 24px var(--accent-glow); }
+    .form-msg { margin-top: 16px; font-size: 14px; color: var(--accent); display: none; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 24px; text-align: center;
+      border-top: 1px solid var(--border); color: var(--text3); font-size: 13px;
+    }
+    footer a { color: var(--text3); margin: 0 12px; }
+    footer a:hover { color: var(--text); }
+    .disclaimer-banner {
+      max-width: 700px; margin: 0 auto 24px;
+      padding: 16px 24px; background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px;
+      font-size: 12px; color: var(--text3); line-height: 1.7; text-align: left;
+    }
+    .disclaimer-banner strong { color: var(--text2); }
+
+    /* ── Animations ── */
+    .fade-up {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero-inner { text-align: center; }
+      .solution-card, .solution-card:nth-child(even) {
+        flex-direction: column; gap: 32px;
+      }
+      .solution-visual { flex: none; width: 100%; max-width: 400px; }
+      .how-steps { flex-direction: column; align-items: center; }
+      .how-step::after { display: none; }
+      .email-form { flex-direction: column; }
+      .cta-box { padding: 40px 24px; }
+      .compare-table { font-size: 12px; }
+      .compare-table th, .compare-table td { padding: 12px 8px; }
+      .counter-num { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">Moat</a>
+  <div class="nav-links">
+    <a href="#features">기능</a>
+    <a href="#compare">비교</a>
+    <a href="#faq">FAQ</a>
+    <a href="#cta" class="nav-cta">사전 등록</a>
+  </div>
+</nav>
+
+<!-- ============ 1. HERO ============ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge fade-up">Android Beta Available</div>
+      <h1 class="hero-question fade-up">
+        내 포트폴리오,<br>지금 <span class="highlight">잘하고 있는 걸까?</span>
+      </h1>
+      <p class="hero-sub fade-up">
+        Moat는 AI가 당신의 포트폴리오를 진단하고,<br>
+        데이터로 증명된 개선안을 제시합니다.<br>
+        감이 아닌 숫자로 투자하세요.
+      </p>
+      <div class="hero-buttons fade-up">
+        <a href="#cta" class="btn-primary">사전 등록하기</a>
+        <a href="#" class="btn-secondary" id="hero-download">APK 다운로드</a>
+      </div>
+      <p class="hero-disclaimer fade-up">본 서비스는 투자자문 및 투자권유가 아닙니다. 모든 투자 판단과 책임은 이용자 본인에게 있습니다.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 3. PAIN POINTS ============ -->
+<section class="pain">
+  <p class="section-label fade-up">Pain Points</p>
+  <h2 class="section-heading fade-up">이런 경험, 한 번쯤 있지 않나요?</h2>
+  <p class="section-sub fade-up">투자 커뮤니티에서 실제로 나온 이야기들입니다.</p>
+  <div class="pain-grid">
+    <div class="pain-card fade-up">
+      <p class="quote">증권사 앱, 코인 앱, 엑셀까지 3개를 번갈아 쓰고 있다</p>
+      <p class="source">분산된 자산을 한눈에 볼 수 없는 불편함</p>
+    </div>
+    <div class="pain-card fade-up">
+      <p class="quote">비중이 쏠려있는 건 알겠는데, 그래서 어쩌라고?</p>
+      <p class="source">문제는 보이는데 해결책은 없는 기존 앱</p>
+    </div>
+    <div class="pain-card fade-up">
+      <p class="quote">리밸런싱을 감으로 한다 &mdash; 팔아야 할 타이밍을 매번 놓친다</p>
+      <p class="source">데이터 없이 감정으로 내리는 투자 결정</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. SOLUTION / FEATURES ============ -->
+<section class="solution" id="features">
+  <p class="section-label fade-up">Solutions</p>
+  <h2 class="section-heading fade-up">Moat는 이렇게 해결합니다</h2>
+  <br><br>
+
+  <!-- Feature 1: Dashboard -->
+  <div class="solution-card fade-up">
+    <div class="solution-text">
+      <div class="solution-num">FEATURE 01</div>
+      <h3>통합 대시보드</h3>
+      <p>한국주식, 미국주식, 암호화폐를 한 화면에서 관리하세요. 자산 간 상관관계까지 분석해서 진짜 분산투자가 되고 있는지 알려드립니다.</p>
+      <p>더 이상 앱 3개를 번갈아 열 필요 없습니다.</p>
+    </div>
+    <div class="solution-visual">
+      <div class="dashboard-visual">
+        <div class="dash-row">
+          <div class="dash-item">
+            <div class="dl">총 자산</div>
+            <div class="dv" style="color:var(--text)">₩48,320,000</div>
+          </div>
+          <div class="dash-item">
+            <div class="dl">총 수익률</div>
+            <div class="dv" style="color:var(--green)">+12.4%</div>
+          </div>
+        </div>
+        <div class="dash-row">
+          <div class="dash-item">
+            <div class="dl">Sharpe Ratio</div>
+            <div class="dv" style="color:var(--blue)">1.24</div>
+          </div>
+          <div class="dash-item">
+            <div class="dl">Max Drawdown</div>
+            <div class="dv" style="color:var(--accent)">-8.2%</div>
+          </div>
+        </div>
+        <div class="dash-pie"></div>
+        <div style="display:flex;justify-content:center;gap:16px;font-size:11px;color:var(--text3)">
+          <span><span style="color:var(--accent)">&#9679;</span> 한국주식 35%</span>
+          <span><span style="color:var(--blue)">&#9679;</span> 미국주식 20%</span>
+          <span><span style="color:var(--green)">&#9679;</span> ETF 20%</span>
+          <span><span style="color:var(--yellow)">&#9679;</span> 암호화폐 15%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature 2: AI Diagnosis (biggest) -->
+  <div class="solution-card fade-up">
+    <div class="solution-text">
+      <div class="solution-num">FEATURE 02 <span class="coming-soon-badge">Coming Soon</span></div>
+      <h3>AI 포트폴리오 진단</h3>
+      <p>단순히 "분산하세요"가 아닙니다. <strong>어떤 종목을</strong>, <strong>얼마나</strong>, <strong>왜</strong> 바꿔야 하는지 구체적으로 알려주는 기능을 준비하고 있습니다.</p>
+      <p>기존 앱이 보여주지 못한 "그래서 뭘 해야 하는데?"에 대한 답을 곧 제공합니다.</p>
+      <p style="font-size:11px;color:var(--text3);opacity:0.6;margin-top:12px;">* AI 분석 결과는 참고용 정보이며, 투자자문에 해당하지 않습니다.</p>
+    </div>
+    <div class="solution-visual">
+      <div class="ai-bubble">
+        <div class="ai-tag">AI 진단 리포트 (개발 중)</div>
+        <p>삼성전자 비중 <span class="metric">35%</span>는 과도합니다. 단일 종목 리스크가 높아 포트폴리오 변동성이 커지고 있습니다.</p>
+        <div class="suggestion">
+          <strong style="color:var(--green)">제안:</strong> 해외 ETF(VT)를 15% 추가하면<br>
+          Sharpe Ratio가 <span class="metric">0.8 → 1.2</span>로 개선되고,<br>
+          Max Drawdown이 <span class="metric">-18% → -11%</span>로 줄어듭니다.
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:var(--text3)">
+          섹터 집중도: IT <span class="metric">62%</span> → 분산 필요<br>
+          상관관계: 보유 종목 간 평균 <span class="metric">0.78</span> (높음)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature 3: Backtesting -->
+  <div class="solution-card fade-up">
+    <div class="solution-text">
+      <div class="solution-num">FEATURE 03</div>
+      <h3>백테스팅</h3>
+      <p>"이 비중으로 3년 전에 시작했으면 지금 얼마일까?"</p>
+      <p>최대 10년간의 실제 시장 데이터로 내 전략을 검증하세요. 리밸런싱 시뮬레이션과 적립식 투자 효과까지 확인할 수 있습니다.</p>
+    </div>
+    <div class="solution-visual">
+      <div class="backtest-visual">
+        <div class="bv-title">3년 백테스트 결과</div>
+        <div class="bv-value">+47.2%</div>
+        <svg viewBox="0 0 350 100" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2ED573" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#2ED573" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,80 Q40,78 70,70 T140,55 T200,35 T260,28 T320,15 L350,10" stroke="#2ED573" stroke-width="2.5" fill="none"/>
+          <path d="M0,80 Q40,78 70,70 T140,55 T200,35 T260,28 T320,15 L350,10 V100 H0 Z" fill="url(#bg1)"/>
+          <path d="M0,80 Q50,79 100,75 T200,65 T300,50 L350,45" stroke="#5B8DEF" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4,3"/>
+          <text x="352" y="12" fill="#2ED573" font-size="9" font-weight="700" text-anchor="end">내 포트폴리오</text>
+          <text x="352" y="48" fill="#5B8DEF" font-size="9" opacity="0.6" text-anchor="end">SPY 벤치마크</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:12px;color:var(--text3)">
+          <span>CAGR <strong style="color:var(--text)">13.8%</strong></span>
+          <span>Sharpe <strong style="color:var(--text)">1.24</strong></span>
+          <span>MDD <strong style="color:var(--accent)">-12.3%</strong></span>
+          <span>Sortino <strong style="color:var(--text)">1.87</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. COMPARISON TABLE ============ -->
+<section class="compare" id="compare">
+  <p class="section-label fade-up">Comparison</p>
+  <h2 class="section-heading fade-up">기존 앱과 뭐가 다른데?</h2>
+  <p class="section-sub fade-up">Moat만의 차별화 기능을 확인하세요.</p>
+  <table class="compare-table fade-up">
+    <thead>
+      <tr>
+        <th>기능</th>
+        <th>증권사 앱</th>
+        <th>자산관리 앱</th>
+        <th class="moat-col">Moat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="feature-name">주식 + 코인 통합 분석</td>
+        <td><span class="cross">&times;</span></td>
+        <td><span class="check">&check;</span></td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">AI 비중 조정 제안</td>
+        <td><span class="cross">&times;</span></td>
+        <td><span class="cross">&times;</span></td>
+        <td class="moat-cell"><span style="color:var(--yellow);font-size:12px;">준비중</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">포트폴리오 백테스팅</td>
+        <td><span class="cross">&times;</span></td>
+        <td><span class="cross">&times;</span></td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">리스크 지표 (Sharpe, MDD 등)</td>
+        <td><span class="cross">&times;</span></td>
+        <td>일부</td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">상관관계 분석</td>
+        <td><span class="cross">&times;</span></td>
+        <td><span class="cross">&times;</span></td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">데이터 로컬 저장 (프라이버시)</td>
+        <td><span class="cross">&times;</span></td>
+        <td><span class="cross">&times;</span></td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+      <tr>
+        <td class="feature-name">무료</td>
+        <td><span class="check">&check;</span></td>
+        <td>부분 유료</td>
+        <td class="moat-cell"><span class="check">&check;</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 6. HOW IT WORKS ============ -->
+<section class="how">
+  <p class="section-label fade-up">How it works</p>
+  <h2 class="section-heading fade-up">3단계로 끝</h2>
+  <p class="section-sub fade-up">복잡한 설정 없이, 바로 시작하세요.</p>
+  <div class="how-steps">
+    <div class="how-step fade-up">
+      <div class="step-circle">1</div>
+      <h3>종목 입력</h3>
+      <p>보유 종목과 수량을 입력하세요.<br>한국/미국 주식 모두 지원.</p>
+    </div>
+    <div class="how-step fade-up">
+      <div class="step-circle">2</div>
+      <h3>AI 분석</h3>
+      <p>리스크 지표, 섹터 분석,<br>AI 리포트가 자동 생성됩니다.</p>
+    </div>
+    <div class="how-step fade-up">
+      <div class="step-circle">3</div>
+      <h3>개선 실행</h3>
+      <p>구체적인 비중 제안에 따라<br>포트폴리오를 리밸런싱하세요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. SOCIAL PROOF ============ -->
+<section class="social">
+  <div class="social-inner fade-up">
+    <p class="section-label">Community</p>
+    <h2 class="section-heading">함께 기다리고 있습니다</h2>
+    <br>
+    <div class="counter-box">
+      <span class="counter-num" id="counter">0</span>
+      <span class="counter-label">명 사전 등록</span>
+    </div>
+    <p style="color:var(--text3);font-size:14px;margin-top:16px;">사전 등록자에게 정식 출시 시 우선 초대장을 보내드립니다.</p>
+    <div class="tech-badges">
+      <div class="tech-badge">React Native</div>
+      <div class="tech-badge">Claude API</div>
+      <div class="tech-badge">Python</div>
+      <div class="tech-badge">Firebase</div>
+      <div class="tech-badge">Yahoo Finance</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. FAQ ============ -->
+<section class="faq" id="faq">
+  <p class="section-label fade-up">FAQ</p>
+  <h2 class="section-heading fade-up">자주 묻는 질문</h2>
+  <br>
+  <div class="faq-list">
+    <div class="faq-item fade-up">
+      <div class="faq-q">무료인가요?</div>
+      <div class="faq-a">네, 기본 기능은 모두 무료입니다. 향후 고급 AI 분석 등 프리미엄 기능이 추가될 수 있지만, 핵심 포트폴리오 분석과 백테스트는 무료로 유지됩니다.</div>
+    </div>
+    <div class="faq-item fade-up">
+      <div class="faq-q">내 데이터는 안전한가요?</div>
+      <div class="faq-a">포트폴리오 데이터는 기기에만 저장됩니다. 증권사 로그인 정보를 수집하지 않으며, 종목과 수량은 직접 입력하는 방식입니다. 서버에 전송되는 건 AI 분석 요청 시 익명화된 포트폴리오 데이터뿐입니다.</div>
+    </div>
+    <div class="faq-item fade-up">
+      <div class="faq-q">언제 출시되나요?</div>
+      <div class="faq-a">2026년 하반기 정식 출시 예정입니다. 현재 Android 베타 버전을 테스트 중이며, 사전 등록자에게 우선 초대장을 보내드립니다.</div>
+    </div>
+    <div class="faq-item fade-up">
+      <div class="faq-q">어떤 종목을 지원하나요?</div>
+      <div class="faq-a">한국 주식(KOSPI/KOSDAQ), 미국 주식(NYSE/NASDAQ), 주요 ETF를 지원합니다. 암호화폐 지원은 향후 업데이트에 포함될 예정입니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. FINAL CTA ============ -->
+<section class="final-cta" id="cta">
+  <div class="cta-box fade-up">
+    <h2>감으로 투자하는 건<br>오늘로 끝.</h2>
+    <p>사전 등록하고 정식 출시 시<br>우선 초대장을 받으세요.</p>
+    <a href="#" class="btn-primary" id="cta-download" style="display:inline-block;margin-bottom:24px;">Android APK 다운로드 (Beta)</a>
+    <p style="color:var(--text3);font-size:13px;margin-bottom:24px;">iOS 출시 알림을 받고 싶으시면 이메일을 남겨주세요.</p>
+    <form class="email-form" id="email-form">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit">사전 등록</button>
+    </form>
+    <p class="form-msg" id="form-msg">등록 완료! 출시 시 가장 먼저 알려드릴게요.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="disclaimer-banner">
+    <p><strong>투자자 유의사항</strong></p>
+    <p>Moat는 투자자문업자가 아니며, 본 서비스에서 제공하는 정보는 투자자문 및 투자권유에 해당하지 않습니다. 모든 투자 판단과 그에 따른 손익의 책임은 투자자 본인에게 있습니다. 과거 수익률이 미래 수익률을 보장하지 않습니다.</p>
+  </div>
+  <p style="margin-bottom:12px;">
+    <a href="docs/privacy.html">개인정보처리방침</a>
+    <a href="docs/terms.html">이용약관</a>
+  </p>
+  <p>&copy; 2026 Moat. All rights reserved.</p>
+</footer>
+
+<script>
+  // Scroll fade-up animation
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // FAQ toggle
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      q.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Email form
+  document.getElementById('email-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const msg = document.getElementById('form-msg');
+    msg.style.display = 'block';
+    // Increment counter
+    const counter = document.getElementById('counter');
+    const current = parseInt(counter.textContent) || 0;
+    counter.textContent = current + 1;
+    localStorage.setItem('moat_registrations', current + 1);
+    this.reset();
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+  });
+
+  // Load counter from localStorage
+  const saved = localStorage.getItem('moat_registrations');
+  if (saved) document.getElementById('counter').textContent = saved;
+
+  // Animate counter on scroll
+  const counterEl = document.getElementById('counter');
+  const counterObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const target = parseInt(counterEl.textContent) || 0;
+        if (target > 0) {
+          let current = 0;
+          const step = Math.max(1, Math.floor(target / 30));
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(interval); }
+            counterEl.textContent = current;
+          }, 30);
+        }
+        counterObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counterObs.observe(counterEl);
+</script>
+
+</body>
+</html>
